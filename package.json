@@ -1,0 +1,32 @@
+{
+  "name": "motu-avb",
+  "version": "0.0.1",
+  "description": "Module to Control MOTU AVB interfaces",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "8M",
+    "16A",
+    "1248",
+    "24Ai",
+    "24Ao",
+    "Monitor8",
+    "112D",
+    "Stage-B16",
+    "Ultralite-AVB",
+    "UltralLite-MK4",
+    "624",
+    "8A",
+    "M64",
+    "8D",
+    "LP32",
+    "828es",
+    "8Pre-es",
+    "Motu_avb_Switch",
+    "828x"
+  ],
+  "author": "Per Røine",
+  "license": "MIT"
+}
