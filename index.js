@@ -41,8 +41,8 @@ instance.prototype.config_fields = function () {
 			label: 'Target port',
 			tooltip: 'The port of the Motu interface',
 			width: 6,
-			default:''
-			regex: self.REGEX_PORT
+			default:'37297'
+
 		}
 	]
 };
@@ -107,7 +107,7 @@ instance.prototype.actions = function(system) {
 				{
 				type:     'textinput',
 				label:    'Main number',
-				id:       'channel',
+				id:       'main',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
 				},
@@ -317,24 +317,6 @@ instance.prototype.action = function(action) {
 			cmd = '/mix/monitor/'+ ch +'/matrix/mute';
 		break;
 
-		case 'channel_solo':
-			var arg = {
-				type: "f",
-				value: opt.bol
-			};
-			var ch = opt.channel -1;
-			cmd = '/mix/chan/'+ ch +'/matrix/solo';
-		break;
-
-		case 'group_solo':
-			var arg = {
-				type: "f",
-				value: opt.bol
-			};
-			var ch = opt.group -1;
-			cmd = '/mix/group/'+ ch +'/matrix/solo';
-		break;
-
 		case 'channel_fad':
 			var arg = {
 				type: "f",
@@ -369,6 +351,24 @@ instance.prototype.action = function(action) {
 			};
 			var ch = opt.monitor -1;
 			cmd = '/mix/monitor/'+ ch +'/matrix/fader';
+		break;
+
+		case 'channel_solo':
+			var arg = {
+				type: "f",
+				value: opt.bol
+			};
+			var ch = opt.channel -1;
+			cmd = '/mix/chan/'+ ch +'/matrix/solo';
+		break;
+
+		case 'group_solo':
+			var arg = {
+				type: "f",
+				value: opt.bol
+			};
+			var ch = opt.group -1;
+			cmd = '/mix/group/'+ ch +'/matrix/solo';
 		break;
 	}
 
