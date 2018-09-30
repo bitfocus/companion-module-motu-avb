@@ -385,11 +385,5 @@ instance.prototype.action = function(action) {
 
 };
 
-instance.module_info = {
-	label: 'MOTU-AVB',
-	id: 'motu-avb',
-	version: '0.0.1'
-};
-
 instance_skel.extendedBy(instance);
 exports = module.exports = instance;
