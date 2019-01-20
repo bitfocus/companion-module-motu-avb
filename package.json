@@ -1,16 +1,18 @@
 {
-  "name": "motu-avb",
-  "version": "1.0.0",
+	"name": "motu-avb",
+	"version": "1.0.1",
 	"api_version": "1.0.0",
-	"keywords": [ "Audio" ],
+	"keywords": [
+		"Audio"
+	],
 	"manufacturer": "MOTU",
 	"product": "AVB",
 	"shortname": "motu",
-  "description": "Module to Control MOTU AVB interfaces",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Per Røine <per.roine@gmail.com>",
-  "license": "MIT"
+	"description": "Module to Control MOTU AVB interfaces",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Per Røine <per.roine@gmail.com>",
+	"license": "MIT"
 }
