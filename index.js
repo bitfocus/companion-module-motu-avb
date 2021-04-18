@@ -78,7 +78,6 @@ instance.prototype.fader_val = [
 ];
 
 
-
 instance.prototype.actions = function(system) {
 	var self = this;
 	self.system.emit('instance_actions', self.id, {
@@ -269,6 +268,32 @@ instance.prototype.actions = function(system) {
 				}
 			]
 		},
+		'aux_send':     {
+			label:      'Aux Send Levels',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Channel number)',
+				id:       'channel',
+				default:  '1 ',
+				regex:    self.REGEX_NUMBER
+				},
+				{
+				type:     'textinput',
+				label:    'Aux Number',
+				id:       'aux',
+				default:  '1 ',
+				regex:    self.REGEX_NUMBER
+				},
+				{
+				type:     'dropdown',
+				label:    'Fader Level',
+				id:       'fad',
+				choices:  self.fader_val
+				}
+			]
+		},
+
 	});
 }
 
@@ -369,6 +394,16 @@ instance.prototype.action = function(action) {
 			};
 			var ch = opt.group -1;
 			cmd = '/mix/group/'+ ch +'/matrix/solo';
+		break;
+
+		case 'aux_send':
+			var arg = {
+				type: "f",
+				value: opt.fad
+			};
+			var ch = opt.channel -1;
+			var send= opt.aux -1;
+			cmd = '/mix/chan/'+ ch +'/matrix/aux/'+send+'/send';
 		break;
 	}
 
