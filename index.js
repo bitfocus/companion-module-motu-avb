@@ -329,8 +329,14 @@ instance.prototype.destroy = function() {
 
 instance.prototype.fader_val = [
 		{ label: '- ∞',        id: '0.0' },
+		{ label: '-60 dB: ',   id: '0.001' },
+		{ label: '-55 dB: ',   id: '0.00178' },
 		{ label: '-50 dB: ',   id: '0.00315' },
+		{ label: '-45 dB: ',   id: '0.00562' },
+		{ label: '-40 dB: ',   id: '0.01' },
+		{ label: '-35 dB: ',   id: '0.0178' },
 		{ label: '-30 dB',     id: '0.0315' },
+		{ label: '-25 dB',     id: '0.0562' },
 		{ label: '-20 dB',     id: '0.1' },
 		{ label: '-18 dB',     id: '0.126' },
 		{ label: '-15 dB',     id: '0.178' },
