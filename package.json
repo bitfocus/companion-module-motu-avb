@@ -1,6 +1,6 @@
 {
 	"name": "motu-avb",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"api_version": "1.0.0",
 	"keywords": [
 		"Audio"
@@ -14,5 +14,8 @@
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Per Røine <per.roine@gmail.com>",
+	"contributors": [
+		"Joseph Adams <josephdadams@gmail.com>"
+	],
 	"license": "MIT"
 }

@@ -10,10 +10,19 @@ function instance(system, id, config) {
 	return self;
 }
 
+instance.prototype.FADER_LEVELS = [];
+instance.prototype.VARIABLES = [];
+instance.prototype.FADER_TIMERS = [];
+
 instance.prototype.updateConfig = function(config) {
 	var self = this;
 
 	self.config = config;
+
+	self.status(self.STATE_OK); // status ok!
+
+	self.init_variables();
+	self.init_presets();
 };
 
 instance.prototype.init = function() {
@@ -21,7 +30,265 @@ instance.prototype.init = function() {
 	self.status(self.STATE_OK); // status ok!
 	debug = self.debug;
 	log = self.log;
+
+	self.init_variables();
+	self.init_presets();
 };
+
+//init_variables: establish instance dynamic variables for button display and other purposes
+instance.prototype.init_variables = function() {
+	var self = this;
+
+	var variables = [];
+	
+	for (let i = 1; i <= 8; i++) {
+		variables.push({ name: 'channel_' + i + '_faderlevel', label: 'Channel ' + i + ' Fader Level'});
+	}
+
+	self.setVariableDefinitions(variables);
+	self.VARIABLES = variables; //copies variable definitions for local instance use
+};
+
+instance.prototype.updateFaderVariable = function (type, ch, level) {
+	var self = this;
+
+	let variableName = type + '_' + ch + '_faderlevel';
+
+	let found = false;
+
+	for (let i = 0; i < self.VARIABLES.length; i++) {
+		if (self.VARIABLES[i].name === variableName) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		//add this variable to the list
+		let variableObj = {};
+		variableObj.name = variableName;
+		variableObj.label = type + ' ' + ch + ' Fader Level';
+		self.VARIABLES.push(variableObj);
+		self.setVariableDefinitions(self.VARIABLES);
+	}
+
+	let faderVal = self.fader_val.find(({ id }) => id === level);
+
+	if (faderVal && faderVal.label) {
+		let variableValue = faderVal.label;
+
+		self.setVariable(variableName, variableValue);
+		self.VARIABLES[variableName] = variableValue;
+	}
+};
+
+instance.prototype.init_presets = function () {
+	var self = this;
+	var presets = [];
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Channel Fader +',
+		bank: {
+			style: 'text',
+			text: 'Channel Fader +',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'channel_fad_increase_timer',
+			options: {
+				channel: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'channel_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Channel Fader -',
+		bank: {
+			style: 'text',
+			text: 'Channel Fader -',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'channel_fad_decrease_timer',
+			options: {
+				channel: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'channel_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Main Fader +',
+		bank: {
+			style: 'text',
+			text: 'Main Fader +',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'main_fad_increase_timer',
+			options: {
+				main: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'main_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Main Fader -',
+		bank: {
+			style: 'text',
+			text: 'Main Fader -',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'main_fad_decrease_timer',
+			options: {
+				main: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'main_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Group Fader +',
+		bank: {
+			style: 'text',
+			text: 'Group Fader +',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'group_fad_increase_timer',
+			options: {
+				group: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'group_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Group Fader -',
+		bank: {
+			style: 'text',
+			text: 'Group Fader -',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'group_fad_decrease_timer',
+			options: {
+				group: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'group_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Monitor Fader +',
+		bank: {
+			style: 'text',
+			text: 'Monitor Fader +',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'monitor_fad_increase_timer',
+			options: {
+				monitor: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'monitor_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	presets.push({
+		category: 'Fader Level',
+		label: 'Monitor Fader -',
+		bank: {
+			style: 'text',
+			text: 'Monitor Fader -',
+			size: '14',
+			color: '16777215',
+			bgcolor: self.rgb(0, 0, 0)
+		},
+		actions: [{
+			action: 'monitor_fad_decrease_timer',
+			options: {
+				monitor: 1,
+				rate: 500
+			}
+		}],
+		release_actions: [{
+			action: 'monitor_fad_stop',
+			options: {
+				channel: 1
+			}
+		}]
+	});
+
+	self.setPresetDefinitions(presets);
+};
+
 
 // Return config fields for web config
 instance.prototype.config_fields = function () {
@@ -50,11 +317,18 @@ instance.prototype.config_fields = function () {
 // When module gets deleted
 instance.prototype.destroy = function() {
 	var self = this;
-	debug("destory", self.id);;
+
+	for (let i = 0; i < self.FADER_TIMERS.length; i++) {
+		clearInterval(self.FADER_TIMERS[i].timer);
+	}
+
+	self.FADER_TIMERS = [];
+
+	debug('destroy', self.id);
 };
 
 instance.prototype.fader_val = [
-		{ label: '- ∞',         id: '0.0' },
+		{ label: '- ∞',        id: '0.0' },
 		{ label: '-50 dB: ',   id: '0.00315' },
 		{ label: '-30 dB',     id: '0.0315' },
 		{ label: '-20 dB',     id: '0.1' },
@@ -77,7 +351,6 @@ instance.prototype.fader_val = [
 		{ label: '+12 dB',     id: '4.0' }
 ];
 
-
 instance.prototype.actions = function(system) {
 	var self = this;
 	self.system.emit('instance_actions', self.id, {
@@ -87,7 +360,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Channel number',
+				label:    'Channel Number',
 				id:       'channel',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -105,7 +378,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Main number',
+				label:    'Main Number',
 				id:       'main',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -123,7 +396,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Main number',
+				label:    'Group Number',
 				id:       'group',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -141,7 +414,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Main number',
+				label:    'Monitor Number',
 				id:       'monitor',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -160,9 +433,9 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Channel number)',
+				label:    'Channel Number',
 				id:       'channel',
-				default:  '1 ',
+				default:  '1',
 				regex:    self.REGEX_NUMBER
 				},
 				{
@@ -179,7 +452,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Main number)',
+				label:    'Main Number',
 				id:       'main',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -198,7 +471,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Main number)',
+				label:    'Group Number',
 				id:       'group',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -217,7 +490,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Main number)',
+				label:    'Monitor Number',
 				id:       'monitor',
 				default:  '1',
 				regex:    self.REGEX_NUMBER
@@ -231,12 +504,328 @@ instance.prototype.actions = function(system) {
 			]
 		},
 
+		'channel_fad_increase':     {
+			label:      'Increase Channel fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Channel Number',
+				id:       'channel',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'channel_fad_increase_timer':     {
+			label:      'Increase Channel Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Channel Number',
+					id:       'channel',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'channel_fad_decrease':     {
+			label:      'Decrease Channel fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Channel Number',
+				id:       'channel',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'channel_fad_decrease_timer':     {
+			label:      'Decrease Channel Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Channel Number',
+					id:       'channel',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'channel_fad_stop': {
+			label: 'Stop Increasing/Decreasing Channel Fader Level',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Channel Number',
+					id:       'channel',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'main_fad_increase':     {
+			label:      'Increase Main fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Main Number',
+				id:       'main',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'main_fad_increase_timer':     {
+			label:      'Increase Main Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Main Number',
+					id:       'main',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'main_fad_decrease':     {
+			label:      'Decrease Main fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Main Number',
+				id:       'main',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'main_fad_decrease_timer':     {
+			label:      'Decrease Main Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Main Number',
+					id:       'main',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'main_fad_stop': {
+			label: 'Stop Increasing/Decreasing Main Fader Level',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Main Number',
+					id:       'main',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'group_fad_increase':     {
+			label:      'Increase Group fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Group Number',
+				id:       'group',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'group_fad_increase_timer':     {
+			label:      'Increase Group Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Group Number',
+					id:       'group',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'group_fad_decrease':     {
+			label:      'Decrease Group fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Group Number',
+				id:       'group',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'group_fad_decrease_timer':     {
+			label:      'Decrease Group Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Group Number',
+					id:       'group',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'group_fad_stop': {
+			label: 'Stop Increasing/Decreasing Group Fader Level',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Group Number',
+					id:       'group',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'monitor_fad_increase':     {
+			label:      'Increase Monitor fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Monitor Number',
+				id:       'monitor',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'monitor_fad_increase_timer':     {
+			label:      'Increase Monitor Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Monitor Number',
+					id:       'monitor',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'monitor_fad_decrease':     {
+			label:      'Decrease Monitor fader 1 level',
+			options: [
+				{
+				type:     'textinput',
+				label:    'Monitor Number',
+				id:       'monitor',
+				default:  '1',
+				regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'monitor_fad_decrease_timer':     {
+			label:      'Decrease Monitor Fader Level Continuously',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Monitor Number',
+					id:       'monitor',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				},
+				{
+					type:     'textinput',
+					label:    'Rate (in ms)',
+					id:       'rate',
+					default:  '500',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
+		'monitor_fad_stop': {
+			label: 'Stop Increasing/Decreasing Monitor Fader Level',
+			options: [
+				{
+					type:     'textinput',
+					label:    'Monitor Number',
+					id:       'monitor',
+					default:  '1',
+					regex:    self.REGEX_NUMBER
+				}
+			]
+		},
+
 		'channel_solo':     {
 			label:     'Set Solo on Channel',
 			options: [
 				{
 				type:    'textinput',
-				label:   'Channel nr',
+				label:   'Channel Number',
 				id:      'channel',
 				default: '1',
 				regex: self.REGEX_NUMBER
@@ -255,7 +844,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:    'textinput',
-				label:   'Group nr',
+				label:   'Group Number',
 				id:      'group',
 				default: '1',
 				regex: self.REGEX_NUMBER
@@ -273,7 +862,7 @@ instance.prototype.actions = function(system) {
 			options: [
 				{
 				type:     'textinput',
-				label:    'Channel number)',
+				label:    'Channel Number',
 				id:       'channel',
 				default:  '1 ',
 				regex:    self.REGEX_NUMBER
@@ -292,23 +881,21 @@ instance.prototype.actions = function(system) {
 				choices:  self.fader_val
 				}
 			]
-		},
+		}
 
 	});
 }
 
 instance.prototype.action = function(action) {
 	var self = this;
-	var cmd
-	var opt = action.options
-
+	var cmd;
+	var opt = action.options;
 
 	switch (action.action){
 
-
 		case 'channel_mute':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.mute
 			};
 			var ch = opt.channel -1;
@@ -317,7 +904,7 @@ instance.prototype.action = function(action) {
 
 		case 'group_mute':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.mute
 			};
 			var ch = opt.group -1;
@@ -326,7 +913,7 @@ instance.prototype.action = function(action) {
 
 		case 'main_mute':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.mute
 			};
 			var ch = opt.main -1;
@@ -335,7 +922,7 @@ instance.prototype.action = function(action) {
 
 		case 'monitor_mute':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.mute
 			};
 			var ch = opt.monitor -1;
@@ -344,43 +931,201 @@ instance.prototype.action = function(action) {
 
 		case 'channel_fad':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: parseFloat(opt.fad)
 			};
 			var ch = opt.channel -1;
 			cmd = '/mix/chan/'+ ch +'/matrix/fader';
+			self.setFaderLevel('channel', opt.channel, opt.fad);
 		break;
 
 		case 'main_fad':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: parseFloat(opt.fad)
 			};
 			var ch = opt.main -1;
 			cmd = '/mix/main/'+ ch +'/matrix/fader';
+			self.setFaderLevel('main', opt.main, opt.fad);
 		break;
 
 		case 'group_fad':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: parseFloat(opt.fad)
 			};
 			var ch = opt.group -1;
 			cmd = '/mix/group/'+ ch +'/matrix/fader';
+			self.setFaderLevel('group', opt.group, opt.fad);
 		break;
 
 		case 'monitor_fad':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: parseFloat(opt.fad)
 			};
 			var ch = opt.monitor -1;
 			cmd = '/mix/monitor/'+ ch +'/matrix/fader';
+			self.setFaderLevel('monitor', opt.monitor, opt.fad);
+		break;
+
+		case 'channel_fad_increase':
+			var ch = opt.channel -1;
+			opt.fad = self.changeFaderLevel('channel', opt.channel, 'inc');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};
+				cmd = '/mix/chan/'+ ch +'/matrix/fader';
+				self.setFaderLevel('channel', opt.channel, opt.fad);
+			}			
+		break;
+
+		case 'channel_fad_increase_timer':
+			self.changeFaderLevelTimer('channel', opt.channel, 'inc', opt.rate);
+		break;
+
+		case 'channel_fad_decrease':
+			var ch = opt.channel -1;
+			opt.fad = self.changeFaderLevel('channel', opt.channel, 'dec');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};
+				cmd = '/mix/chan/'+ ch +'/matrix/fader';
+				self.setFaderLevel('channel', opt.channel, opt.fad);
+			}			
+		break;
+
+		case 'channel_fad_decrease_timer':
+			self.changeFaderLevelTimer('channel', opt.channel, 'dec', opt.rate);
+		break;
+
+		case 'channel_fad_stop':
+			self.stopFaderLevelTimer('channel', opt.channel);
+		break;
+
+		case 'main_fad_increase':
+			var ch = opt.main -1;
+			opt.fad = self.changeFaderLevel('main', opt.main, 'inc');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};
+				
+				cmd = '/mix/main/'+ ch +'/matrix/fader';
+				self.setFaderLevel('main', opt.main, opt.fad);
+			}
+		break;
+
+		case 'main_fad_increase_timer':
+			self.changeFaderLevelTimer('main', opt.main, 'inc', opt.rate);
+		break;
+
+		case 'main_fad_decrease':
+			var ch = opt.main -1;
+			opt.fad = self.changeFaderLevel('main', opt.main, 'dec');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};
+				
+				cmd = '/mix/main/'+ ch +'/matrix/fader';
+				self.setFaderLevel('main', opt.main, opt.fad);
+			}
+		break;
+
+		case 'main_fad_decrease_timer':
+			self.changeFaderLevelTimer('main', opt.main, 'dec', opt.rate);
+		break;
+
+		case 'main_fad_stop':
+			self.stopFaderLevelTimer('main', opt.main);
+		break;
+
+		case 'group_fad_increase':
+			var ch = opt.group -1;
+			opt.fad = self.changeFaderLevel('group', opt.group, 'inc');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};			
+				cmd = '/mix/group/'+ ch +'/matrix/fader';
+				self.setFaderLevel('group', opt.group, opt.fad);
+			}
+		break;
+
+		case 'group_fad_increase_timer':
+			self.changeFaderLevelTimer('group', opt.group, 'inc', opt.rate);
+		break;
+
+		case 'group_fad_decrease':
+			var ch = opt.group -1;
+			opt.fad = self.changeFaderLevel('group', opt.group, 'dec');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};			
+				cmd = '/mix/group/'+ ch +'/matrix/fader';
+				self.setFaderLevel('group', opt.group, opt.fad);
+			}
+		break;
+
+		case 'group_fad_decrease_timer':
+			self.changeFaderLevelTimer('group', opt.group, 'dec', opt.rate);
+		break;
+
+		case 'group_fad_stop':
+			self.stopFaderLevelTimer('group', opt.group);
+		break;
+
+		case 'monitor_fad_increase':
+			var ch = opt.monitor -1;
+			opt.fad = self.changeFaderLevel('monitor', opt.monitor, 'inc');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};
+				cmd = '/mix/monitor/'+ ch +'/matrix/fader';
+				self.setFaderLevel('monitor', opt.monitor, opt.fad);
+			}
+		break;
+
+		case 'monitor_fad_increase_timer':
+			self.changeFaderLevelTimer('monitor', opt.monitor, 'inc', opt.rate);
+		break;
+
+		case 'monitor_fad_decrease':
+			var ch = opt.monitor -1;
+			opt.fad = self.changeFaderLevel('monitor', opt.monitor, 'dec');
+			if (opt.fad !== null) {
+				var arg = {
+					type: 'f',
+					value: parseFloat(opt.fad)
+				};
+				cmd = '/mix/monitor/'+ ch +'/matrix/fader';
+				self.setFaderLevel('monitor', opt.monitor, opt.fad);
+			}
+		break;
+
+		case 'monitor_fad_decrease_timer':
+			self.changeFaderLevelTimer('monitor', opt.monitor, 'dec', opt.rate);
+		break;
+
+		case 'monitor_fad_stop':
+			self.stopFaderLevelTimer('channel', opt.monitor);
 		break;
 
 		case 'channel_solo':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.bol
 			};
 			var ch = opt.channel -1;
@@ -389,7 +1134,7 @@ instance.prototype.action = function(action) {
 
 		case 'group_solo':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.bol
 			};
 			var ch = opt.group -1;
@@ -398,7 +1143,7 @@ instance.prototype.action = function(action) {
 
 		case 'aux_send':
 			var arg = {
-				type: "f",
+				type: 'f',
 				value: opt.fad
 			};
 			var ch = opt.channel -1;
@@ -407,17 +1152,157 @@ instance.prototype.action = function(action) {
 		break;
 	}
 
-
 	if (cmd !== undefined && arg !== null)  {
-		debug('sending',cmd,arg,"to",self.config.host);
+		debug('sending',cmd,arg,'to',self.config.host);
 		self.system.emit('osc_send', self.config.host, self.config.port, cmd, [arg])
 	}
 	else if (cmd !== undefined && arg == null)  {
-		debug('sending',cmd,"to",self.config.host);
+		debug('sending',cmd,'to',self.config.host);
 		self.system.emit('osc_send', self.config.host, self.config.port, cmd, [])
 	}
+};
 
+instance.prototype.setFaderLevel = function(type, ch, level) {
+	let self = this;
 
+	let found = false;
+
+	for (let i = 0; i < self.FADER_LEVELS.length; i++) {
+		if (self.FADER_LEVELS[i].type === type) {
+			if (self.FADER_LEVELS[i].ch === ch.toString()) {
+				self.FADER_LEVELS[i].level = level;
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if (!found) {
+		let faderLevelObj = {};
+		faderLevelObj.type = type;
+		faderLevelObj.ch = ch.toString();
+		faderLevelObj.level = level;
+		self.FADER_LEVELS.push(faderLevelObj);
+	}
+
+	self.updateFaderVariable(type, ch, level);
+};
+
+instance.prototype.changeFaderLevel = function(type, ch, direction) {
+	let self = this;
+
+	try {
+		let found = false;
+
+		let currentLevel = null;
+	
+		for (let i = 0; i < self.FADER_LEVELS.length; i++) {
+			if (self.FADER_LEVELS[i].type === type) {
+				if (self.FADER_LEVELS[i].ch === ch.toString()) {
+					found = true;
+					currentLevel = self.FADER_LEVELS[i].level;
+				}
+			}
+		}
+	
+		if (!found) {
+			//we don't know the state of this particular channel fader, so throw an error
+			self.log('error', `Fader level state for ${type}: Channel ${ch} unknown. Please set value manually first.`);
+			self.stopFaderLevelTimer(type, ch);
+			return null;
+		}
+		else {
+			let faderIndex = null;
+	
+			for (let i = 0; i < self.fader_val.length; i++) {
+				if (self.fader_val[i].id.toString() === currentLevel.toString()) {
+					faderIndex = i;
+					break;
+				}
+			}
+	
+			let newFaderIndex = faderIndex;
+
+			if (direction === 'inc') {
+				newFaderIndex++;
+				if (newFaderIndex > self.fader_val.length - 1) {
+					newFaderIndex = self.fader_val.length -1;
+					self.stopFaderLevelTimer(type, ch);
+				}
+			}
+			else {
+				newFaderIndex--;
+				if (newFaderIndex < 0) {
+					newFaderIndex = 0;
+					self.stopFaderLevelTimer(type, ch);
+				}
+			}
+	
+			return self.fader_val[newFaderIndex].id;
+		}
+	}
+	catch(error) {
+		self.log('error', `Error changing fader level: ${error}`);
+		self.stopFaderLevelTimer(type, ch);
+		return null;
+	}
+};
+
+instance.prototype.changeFaderLevelTimer = function(type, ch, direction, rate) {
+	let self = this;
+
+	let timerObj = {};
+	timerObj.type = type;
+	timerObj.ch = ch.toString();
+	timerObj.direction = direction;
+	timerObj.rate = rate;
+
+	let actionObj = {};
+	actionObj.options = {};
+
+	switch(type) {
+		case 'channel':
+			actionObj.action = 'channel_fad_';
+			actionObj.options.channel = ch;
+			break;
+		case 'main':
+			actionObj.action = 'channel_fad_';
+			actionObj.options.main = ch;
+			break;
+		case 'group':
+			actionObj.action = 'channel_fad_';
+			actionObj.options.group = ch;
+			break;
+		case 'monitor':
+			actionObj.action = 'channel_fad_';
+			actionObj.options.monitor = ch;
+			break;
+	}
+
+	if (direction === 'inc') {
+		actionObj.action += 'increase';
+	}
+	else {
+		actionObj.action += 'decrease';
+	}
+
+	timerObj.timer = setInterval(self.action.bind(self), rate, actionObj);
+
+	self.FADER_TIMERS.push(timerObj);
+};
+
+instance.prototype.stopFaderLevelTimer = function(type, ch) {
+	let self = this;
+
+	for (let i = 0; i < self.FADER_TIMERS.length; i++) {
+		if (self.FADER_TIMERS[i].type === type) {
+			if (self.FADER_TIMERS[i].ch === ch.toString()) {
+				clearInterval(self.FADER_TIMERS[i].timer);
+				self.FADER_TIMERS.splice(i, 1);
+				break;
+			}
+		}
+	}
 };
 
 instance_skel.extendedBy(instance);
