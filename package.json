@@ -17,5 +17,13 @@
 	"contributors": [
 		"Joseph Adams <josephdadams@gmail.com>"
 	],
-	"license": "MIT"
+	"license": "MIT",
+	"homepage": "https://github.com/bitfocus/companion-module-motu-avb#readme",
+	"bugs": {
+		"url": "https://github.com/bitfocus/companion-module-motu-avb/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitfocus/companion-module-motu-avb.git"
+	}
 }
