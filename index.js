@@ -389,7 +389,7 @@ instance.prototype.fader_val = [
 
 instance.prototype.actions = function(system) {
 	var self = this;
-	self.system.emit('instance_actions', self.id, {
+	self.setActions({
 
 		'channel_mute':     {
 			label:      'Set Channel mute',
@@ -1190,11 +1190,11 @@ instance.prototype.action = function(action) {
 
 	if (cmd !== undefined && arg !== null)  {
 		debug('sending',cmd,arg,'to',self.config.host);
-		self.system.emit('osc_send', self.config.host, self.config.port, cmd, [arg])
+		self.oscSend(self.config.host, self.config.port, cmd, [arg])
 	}
 	else if (cmd !== undefined && arg == null)  {
 		debug('sending',cmd,'to',self.config.host);
-		self.system.emit('osc_send', self.config.host, self.config.port, cmd, [])
+		self.oscSend(self.config.host, self.config.port, cmd, [])
 	}
 };
 
