@@ -372,7 +372,6 @@ instance.prototype.fader_val = [
         	{ label: '-5 dB',      id: '0.56' },
         	{ label: '-4 dB',      id: '0.63' },        		
 		{ label: '-3 dB',      id: '0.71' },
-		{ label: '-3 dB',      id: '0.71' },
 		{ label: '-2 dB',      id: '0.779' },
 		{ label: '-1 dB',      id: '0.89' },
 		{ label: '0 dB',       id: '1.0' },
